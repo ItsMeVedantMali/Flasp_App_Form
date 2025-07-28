@@ -5,9 +5,9 @@ document.getElementById("contactForm").addEventListener("submit", function(e) {
     name: document.getElementById("name").value,
     email: document.getElementById("email").value,
     message: document.getElementById("message").value
-  };
+  }; 
 
-  fetch("http://localhost:5000/submit", {
+  fetch("https://your-flask-app-url.onrender.com/submit", {  // <-- use your real deployed URL
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
