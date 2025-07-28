@@ -1,34 +1,29 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import mysql.connector
-import os
+from flask import Flask, render_template, request
+import sqlite3  # You can change to MySQL if needed
 
 app = Flask(__name__)
-CORS(app)
 
-@app.route('/')
-def home():
-    return "Flask app is running!"
+# Home route - show the form
+@app.route("/")
+def form():
+    return render_template("form.html")
 
-@app.route('/submit', methods=['POST'])
+# Handle form submission
+@app.route("/submit", methods=["POST"])
 def submit():
-    data = request.get_json()
-    name = data['name']
-    email = data['email']
-    message = data['message']
+    name = request.form['name']
+    email = request.form['email']
+    message = request.form['message']
 
-    try:
-        connection = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASS"),
-            database=os.getenv("DB_NAME")
-        )
-        cursor = connection.cursor()
-        query = "INSERT INTO form_data (name, email, message) VALUES (%s, %s, %s)"
-        cursor.execute(query, (name, email, message))
-        connection.commit()
-        return "Success"
-    except Exception as e:
-        print("Error:", e)
-        return "Error", 500
+    # Store in SQLite (or use your MySQL connection here)
+    conn = sqlite3.connect('data.db')
+    c = conn.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS contacts (name TEXT, email TEXT, message TEXT)")
+    c.execute("INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)", (name, email, message))
+    conn.commit()
+    conn.close()
+
+    return "Form submitted successfully!"
+
+if __name__ == "__main__":
+    app.run()
