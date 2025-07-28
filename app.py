@@ -1,9 +1,14 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
+import os
 
 app = Flask(__name__)
-CORS(app)  # allows JavaScript from another origin to access backend
+CORS(app)
+
+@app.route('/')
+def home():
+    return "Flask app is running!"
 
 @app.route('/submit', methods=['POST'])
 def submit():
@@ -14,10 +19,10 @@ def submit():
 
     try:
         connection = mysql.connector.connect(
-            host='sql306.infinityfree.com',
-            user='if0_39577314if0_39577314',
-            password='VedantMali09',
-            database='if0_39577314_poppiuox'
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASS"),
+            database=os.getenv("DB_NAME")
         )
         cursor = connection.cursor()
         query = "INSERT INTO form_data (name, email, message) VALUES (%s, %s, %s)"
